@@ -1,0 +1,245 @@
+# Repository / database detection patterns for ArmLifeBank
+# Each entry defines one normalised repository name, its category,
+# and one or more Python regex patterns (case-insensitive by default).
+#
+# confidence levels:
+#   high   – specific accession format or URL; very low false-positive rate
+#   medium – keyword + partial identifier; possible false positives
+#   low    – keyword mention only; requires manual review
+
+repositories:
+
+  # ── General data repositories ────────────────────────────────────────────
+
+  - name: Zenodo
+    category: general_repository
+    id_type: doi
+    patterns:
+      - 'zenodo\.org/(?:record|deposit|records|badge)/(\d+)'
+      - '10\.5281/zenodo\.(\d+)'
+      - 'zenodo[.\s]*(?:doi[:\s]*|accession[:\s]*|record[:\s]*|no\.?[:\s]*)(\d{5,})'
+    confidence: high
+
+  - name: Figshare
+    category: general_repository
+    id_type: doi
+    patterns:
+      # any figshare URL ending in a numeric ID (handles /articles/dataset/title/ID)
+      - "figshare\\.com/[^\"'<>\\s]*/([0-9]{5,})"
+      - '10\.6084/m9\.figshare\.(\d+)'
+      - 'figshare[.\s]*(?:doi[:\s]*|accession[:\s]*|record[:\s]*|no\.?[:\s]*)(\d{5,})'
+    confidence: high
+
+  - name: Dryad
+    category: general_repository
+    id_type: doi
+    patterns:
+      - '10\.5061/dryad\.([a-z0-9]+)'
+      - 'datadryad\.org/stash/dataset/doi[:/]10\.\d{4,}/dryad\.([a-z0-9]+)'
+      - 'dryad[.\s]*(?:doi[:\s]*|accession[:\s]*|no\.?[:\s]*)10\.\d{4,}/dryad\.([a-z0-9]+)'
+    confidence: high
+
+  - name: OSF
+    category: general_repository
+    id_type: url
+    patterns:
+      - 'osf\.io/([a-z0-9]{5})\b'
+      - 'open\s*science\s*framework.*?osf\.io/([a-z0-9]{5})'
+    confidence: high
+
+  - name: Mendeley Data
+    category: general_repository
+    id_type: doi
+    patterns:
+      - 'data\.mendeley\.com/datasets/([a-z0-9]+)/\d+'
+      - '10\.17632/([a-z0-9]+)\.\d+'
+    confidence: high
+
+  - name: Dataverse
+    category: general_repository
+    id_type: doi
+    patterns:
+      - '10\.7910/DVN/([A-Z0-9]+)'
+      - 'dataverse\.(?:harvard\.edu|nl|no)/dataset\.xhtml[?].*?persistentId=(?:doi|hdl):[^\s&"<]+'
+    confidence: high
+
+  # ── NCBI genomics / reads ────────────────────────────────────────────────
+
+  - name: Gene Expression Omnibus
+    category: transcriptomics
+    id_type: accession
+    patterns:
+      - '\b(GSE\d{4,})\b'
+      - '\b(GSM\d{4,})\b'
+      - '\b(GDS\d{4,})\b'
+      - '\b(GPL\d{4,})\b'
+      - 'gene\s+expression\s+omnibus[^(]*\(?(GSE\d{4,})'
+      - '\bGEO\b[^(]*\(?(GSE\d{4,})'
+      - 'ncbi\.nlm\.nih\.gov/geo/query/acc\.cgi[?]acc=(GSE\d{4,})'
+    confidence: high
+
+  - name: SRA
+    category: raw_reads
+    id_type: accession
+    patterns:
+      - '\b(SRP\d{6,})\b'
+      - '\b(SRX\d{6,})\b'
+      - '\b(SRR\d{6,})\b'
+      - '\b(SRS\d{6,})\b'
+      - '\b(ERR\d{6,})\b'
+      - '\b(ERX\d{6,})\b'
+      - '\b(ERP\d{6,})\b'
+      - '\b(DRR\d{6,})\b'
+      - '\b(DRP\d{6,})\b'
+      - 'sequence\s+read\s+archive.*?((?:SRP|SRX|SRR)\d{6,})'
+    confidence: high
+
+  - name: BioProject
+    category: raw_reads
+    id_type: accession
+    patterns:
+      - '\b(PRJNA\d{4,})\b'
+      - '\b(PRJEB\d{4,})\b'
+      - '\b(PRJDB\d{4,})\b'
+      - 'bioproject.*?(PRJNA\d{4,})'
+    confidence: high
+
+  - name: BioSample
+    category: raw_reads
+    id_type: accession
+    patterns:
+      - '\b(SAMN\d{7,})\b'
+      - '\b(SAMEA\d{6,})\b'
+      - '\b(SAMD\d{7,})\b'
+      - 'biosample.*?(SAMN\d{7,})'
+    confidence: high
+
+  - name: GenBank
+    category: nucleotide_sequence
+    id_type: accession
+    patterns:
+      # Standard 1-letter + 5-digit or 2-letter + 6-digit nucleotide accessions
+      - '\b([A-Z]{1,2}\d{5,6}(?:\.\d+)?)\b'
+      # WGS / long accessions: 4 letters + 8+ digits
+      - '\b([A-Z]{4}\d{8,})\b'
+      # Accession ranges: OP123456-OP123460
+      - '\b([A-Z]{1,2}\d{5,6})[\s\u2013\-–]+[A-Z]{0,2}\d{5,6}\b'
+      - 'genbank.*?accession[s]?[:\s]+([A-Z]{1,2}\d{5,6})'
+      - '\b(MN\d{6}|MT\d{6}|MZ\d{6}|OK\d{6}|OP\d{6}|OQ\d{6}|OR\d{6}|OV\d{6}|PP\d{6}|PQ\d{6})\b'
+    confidence: medium   # single-letter accessions can be ambiguous
+
+  - name: ENA
+    category: nucleotide_sequence
+    id_type: accession
+    patterns:
+      - '\b(ERS\d{6,})\b'
+      - '\b(ERZ\d{6,})\b'
+      - 'european\s+nucleotide\s+archive.*?([A-Z]{2}\d{6,})'
+      - 'ena\.ebi\.ac\.uk.*?([A-Z]{2}\d{6,}|PRJ[ENA][A-Z]\d+)'
+    confidence: high
+
+  - name: dbGaP
+    category: variation
+    id_type: accession
+    patterns:
+      - '\b(phs\d{6}\.\S*)\b'
+      - '\b(phs\d{6})\b'
+      - 'dbgap.*?(phs\d{6})'
+    confidence: high
+
+  # ── Proteomics ───────────────────────────────────────────────────────────
+
+  - name: PRIDE
+    category: proteomics
+    id_type: accession
+    patterns:
+      - '\b(PXD\d{6,})\b'
+      - 'pride.*?(PXD\d{6,})'
+      - 'proteomexchange.*?(PXD\d{6,})'
+      - 'www\.ebi\.ac\.uk/pride/archive/projects/(PXD\d{6,})'
+    confidence: high
+
+  # ── Transcriptomics / expression ─────────────────────────────────────────
+
+  - name: ArrayExpress
+    category: transcriptomics
+    id_type: accession
+    patterns:
+      - '\b(E-[A-Z]{4}-\d+)\b'
+      - 'arrayexpress.*?(E-[A-Z]{4}-\d+)'
+      - 'ebi\.ac\.uk/arrayexpress/experiments/(E-[A-Z]{4}-\d+)'
+    confidence: high
+
+  # ── Metabolomics ─────────────────────────────────────────────────────────
+
+  - name: MetaboLights
+    category: metabolomics
+    id_type: accession
+    patterns:
+      - '\b(MTBLS\d+)\b'
+      - 'metabolights.*?(MTBLS\d+)'
+      - 'ebi\.ac\.uk/metabolights/(MTBLS\d+)'
+    confidence: high
+
+  # ── Controlled-access genomics ───────────────────────────────────────────
+
+  - name: EGA
+    category: controlled_access
+    id_type: accession
+    patterns:
+      - '\b(EGAS\d{11})\b'
+      - '\b(EGAD\d{11})\b'
+      - '\b(EGAZ\d{11})\b'
+      - '\b(EGAN\d{11})\b'
+      - 'european\s+genome.*?phenome.*?(EGAS\d{11})'
+      - 'ega-archive\.org/datasets/(EGAD\d{11})'
+    confidence: high
+
+  # ── Structure ────────────────────────────────────────────────────────────
+
+  - name: PDB
+    category: structure
+    id_type: accession
+    patterns:
+      # PDB codes: exactly 4 chars, digit first
+      - '(?:PDB|Protein\s+Data\s+Bank)[:\s]+([1-9][A-Z0-9]{3})\b'
+      - 'rcsb\.org/structure/([1-9][A-Z0-9]{3})\b'
+      - '\bPDB\s+(?:ID|code|accession|entry)[:\s]+([1-9][A-Z0-9]{3})\b'
+      - '\bPDB:\s*([1-9][A-Z0-9]{3})\b'
+    confidence: high
+
+  # ── Variation ────────────────────────────────────────────────────────────
+
+  - name: dbSNP
+    category: variation
+    id_type: accession
+    patterns:
+      - '\b(rs\d{6,})\b'
+      - 'dbsnp.*?(rs\d{6,})'
+    confidence: high
+
+  - name: ClinVar
+    category: variation
+    id_type: accession
+    patterns:
+      - '\b(RCV\d{9})\b'
+      - '\b(VCV\d{9})\b'
+      - 'clinvar.*?(?:accession|ID)[:\s]+((?:RCV|VCV)\d{9})'
+      - 'ncbi\.nlm\.nih\.gov/clinvar/variation/(\d{4,})'
+    confidence: high
+
+  # ── Code / software repositories ─────────────────────────────────────────
+
+  - name: GitHub
+    category: code_repository
+    id_type: url
+    patterns:
+      - 'github\.com/([A-Za-z0-9_.\-]+/[A-Za-z0-9_.\-]+)'
+    confidence: medium   # may be a tool citation rather than data deposit
+
+  - name: GitLab
+    category: code_repository
+    id_type: url
+    patterns:
+      - 'gitlab\.com/([A-Za-z0-9_.\-]+/[A-Za-z0-9_.\-]+)'
+    confidence: medium

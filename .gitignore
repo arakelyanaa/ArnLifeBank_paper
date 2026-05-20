@@ -1,0 +1,28 @@
+# Cache and outputs
+.cache/
+output/
+logs/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+.venv/
+venv/
+*.pyc
+
+# Secrets
+NCBI_API.txt
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# Generated outputs and session data
+output-Armenia/
+.claude/

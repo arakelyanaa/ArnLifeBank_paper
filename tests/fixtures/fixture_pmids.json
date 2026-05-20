@@ -1,0 +1,22 @@
+{
+  "_comment": "Hand-curated fixture PMIDs for integration tests. Do not modify without updating test_integration.py.",
+
+  "armenia_country": {
+    "description": "True Armenia-country affiliations (Yerevan, .am domain, Republic of Armenia, NAS RA, etc.)",
+    "pmids": ["34083051", "33854538", "33693414", "33566002", "33463931", "33463123"]
+  },
+
+  "colombia_exclusion": {
+    "description": "Armenia, Colombia / Quindío false-positives",
+    "pmids": ["36753156", "36753075", "33732446"]
+  },
+
+  "oa_with_accessions": {
+    "description": "PMC Open Access articles known to contain GenBank / BioProject accessions",
+    "pmids": ["33414769", "33338900", "33322276"]
+  },
+
+  "all": ["34083051", "33854538", "33693414", "33566002", "33463931", "33463123",
+          "36753156", "36753075", "33732446",
+          "33414769", "33338900", "33322276"]
+}

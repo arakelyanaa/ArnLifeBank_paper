@@ -1,0 +1,35 @@
+# ArmLifeBank pipeline configuration
+# All values can be overridden by environment variables (see config.py).
+
+# Country profile to use. Must match a file in country_profiles/.
+# Override with: --country latvia  or  ALB_COUNTRY=latvia
+country: "armenia"
+
+ncbi:
+  email: "arakelyanaa@gmail.com"
+  tool: "armlifebank"
+  # api_key: read from NCBI_API.txt or NCBI_API_KEY env var at runtime
+  rate_delay: 0.12        # seconds between requests (safe for 10 req/s with API key)
+  batch_size: 200         # PMIDs per efetch call
+  max_retries: 5
+  retry_backoff: 2.0      # seconds; doubles on each retry
+
+search:
+  start_year: 2020
+  end_year: 2025
+  query_template: '("Armenia"[Affiliation]) AND ({year}[PDAT])'
+
+pipeline:
+  mode: "strict"          # strict | broad
+  sample_size: null       # null = full run; integer = limit for testing
+  resume: false
+  force_refresh_cache: false
+
+paths:
+  # output_dir defaults to output/{country}/ if not set here.
+  # Uncomment and set to override for all countries:
+  # output_dir: "output"
+  cache_dir: ".cache"
+  log_dir: "logs"
+  api_key_file: "NCBI_API.txt"
+  repository_patterns: "repository_patterns.yaml"

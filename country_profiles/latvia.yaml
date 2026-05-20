@@ -1,0 +1,68 @@
+# Country profile: Latvia
+# Used by the ArmLifeBank pipeline to classify author affiliations and build
+# PubMed search queries.  All regex patterns are compiled with re.IGNORECASE.
+
+name: "Latvia"
+code: "latvia"                          # used in output labels (e.g. latvia_country) and default output subdir
+search_term: '("Latvia"[Affiliation]) AND ({year}[PDAT])'
+domain_suffix: ".lv"                    # email / web domain that confirms country location
+country_name_pattern: '\blatvia\b'      # bare country name; used to validate city/institution hits
+adjective_pattern: '\blatvian\b'        # country adjective — matched alone yields "uncertain"
+
+# ── Negative patterns ─────────────────────────────────────────────────────────
+# Any match → immediately classified as not_<code>_country.
+# Latvia is geographically unambiguous; no major false-positive sources are known.
+# Add entries here if specific conflicts are discovered during analysis.
+negative_patterns: []
+
+# ── Strong positive patterns ──────────────────────────────────────────────────
+# Any match → classified as <code>_country immediately (no further checks needed).
+strong_positive_patterns:
+  - '\brepublic\s+of\s+latvia\b'
+  # "Latvia" as the last address token (country position), optionally followed by punctuation
+  - '(?:,\s*|\.\s*|\s+)latvia\s*[\.,;]?\s*$'
+
+# ── Institution patterns ──────────────────────────────────────────────────────
+# Match → <code>_country if country_name_pattern OR any city also matches;
+#          otherwise → uncertain (or <code>_country in broad mode).
+institution_patterns:
+  - '\buniversity\s+of\s+latvia\b'
+  - '\blu\b'                                          # common abbreviation in Latvian affiliations
+  - '\briga\s+strad[iī][nņ][sš]\s+university\b'
+  - '\brsu\b'
+  - '\briga\s+technical\s+university\b'
+  - '\brtu\b'
+  - '\blatvia\s+university\s+of\s+life\s+sciences\b'  # also known as LLU
+  - '\bllu\b'
+  - '\bdaugavpils\s+university\b'
+  - '\bventspils\s+university\s+(?:of\s+applied\s+sciences|college)\b'
+  - '\blatvian\s+institute\s+of\s+organic\s+chemistry\b'
+  - '\blatvian\s+biomedical\s+research\s+and\s+study\s+centre\b'
+  - '\bbmc\b'                                         # Biomedical Research and Study Centre
+  - '\binstitute\s+of\s+biology.*?(?:latvia|university\s+of\s+latvia)\b'
+  - '\blatvian\s+state\s+institute\s+of\s+fruit.growing\b'
+  - '\bpauls\s+strad[iī][nņ][sš]\s+clinical\s+university\s+hospital\b'
+  - '\briga\s+east\s+clinical\s+university\s+hospital\b'
+  - '\bchildren[''s]*\s+clinical\s+university\s+hospital.*?riga\b'
+  - '\blatvian\s+oncology\s+cent(?:er|re)\b'
+  - '\briga\s+stradinsh\s+university\b'               # anglicised spelling variant
+
+# ── City patterns ─────────────────────────────────────────────────────────────
+# Match → <code>_country if country_name_pattern also matches;
+#          otherwise → uncertain (or <code>_country in broad mode).
+city_patterns:
+  - '\briga\b'
+  - '\bdaugavpils\b'
+  - '\bliep[āa]ja\b'
+  - '\bjelgava\b'
+  - '\bj[ūu]rmala\b'
+  - '\bventspils\b'
+  - '\br[ēe]zekne\b'
+  - '\bvalmiera\b'
+  - '\bj[ēe]kabpils\b'
+  - '\bogre\b'
+  - '\btukums\b'
+  - '\bsaldus\b'
+  - '\btalsi\b'
+  - '\bcēsis\b'
+  - '\bcesis\b'

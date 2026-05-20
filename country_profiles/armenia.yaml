@@ -1,0 +1,94 @@
+# Country profile: Armenia
+# Used by the ArmLifeBank pipeline to classify author affiliations and build
+# PubMed search queries.  All regex patterns are compiled with re.IGNORECASE.
+
+name: "Armenia"
+code: "armenia"                        # used in output labels (e.g. armenia_country) and default output subdir
+search_term: '("Armenia"[Affiliation]) AND ({year}[PDAT])'
+domain_suffix: ".am"                   # email / web domain that confirms country location
+country_name_pattern: '\barmenia\b'    # bare country name; used to validate city/institution hits
+adjective_pattern: '\barmenian\b'      # country adjective — matched alone yields "uncertain"
+
+# ── Negative patterns ─────────────────────────────────────────────────────────
+# Any match → immediately classified as not_<code>_country.
+# Each entry is a plain regex string (re.IGNORECASE applied).
+negative_patterns:
+  # Colombia country / department tokens
+  - '\bcolombia\b'
+  - '\bquind[ií]o\b'
+  - '\bquindio\b'
+  # Colombian cities that co-occur with "Armenia, Colombia"
+  - '\b(bogot[aá]|medell[ií]n|cali|barranquilla|cartagena|bucaramanga|pereira|manizales|cucuta|ibagu[eé]|villavicencio|pasto|monter[ií]a|sincelejo|valledupar|riohacha|santa\s+marta)\b'
+  # Colombian institutions
+  - '\b(universidad\s+del\s+quind[ií]o|universidad\s+de\s+la\s+amazonia|universidad\s+antonio\s+nari[nñ]o|fundaci[oó]n\s+universitaria|univalle|uniandes|universidad\s+nacional\s+de\s+colombia|hospital\s+universitario\s+san\s+juan\s+de\s+dios)\b'
+  # Colombian Quindío postal codes (630xxx)
+  - '\b63[0-9]{4}\b'
+
+# ── Strong positive patterns ──────────────────────────────────────────────────
+# Any match → classified as <code>_country immediately (no further checks needed).
+strong_positive_patterns:
+  - '\brepublic\s+of\s+armenia\b'
+  # "Armenia" as the last address token (country position), optionally followed by punctuation
+  - '(?:,\s*|\.\s*|\s+)armenia\s*[\.,;]?\s*$'
+
+# ── Institution patterns ──────────────────────────────────────────────────────
+# Match → <code>_country if country_name_pattern OR any city also matches;
+#          otherwise → uncertain (or <code>_country in broad mode).
+institution_patterns:
+  - '\byerevan\s+state\s+university\b'
+  - '\bysu\b'
+  - '\barmenian\s+national\s+academy\s+of\s+sciences\b'
+  - '\bnas\s+ra\b'
+  - '\bnas\s+of\s+ra\b'
+  - '\bnational\s+academy\s+of\s+sciences\s+of\s+(?:the\s+)?republic\s+of\s+armenia\b'
+  - '\binstitute\s+of\s+molecular\s+biology.*?(?:armenia|nas)\b'
+  - '\byerevan\s+state\s+medical\s+university\b'
+  - '\bysmu\b'
+  - '\bamerican\s+university\s+of\s+armenia\b'
+  - '\barmenian\s+american\s+health\s+university\b'
+  - '\bstate\s+medical\s+university\s+of\s+armenia\b'
+  - '\barmenian\s+state\s+agrarian\s+university\b'
+  - '\basau\b'
+  - '\bnational\s+polytechnic\s+university\s+of\s+armenia\b'
+  - '\bnpua\b'
+  - '\bstate\s+engineering\s+university\s+of\s+armenia\b'
+  - '\bseua\b'
+  - '\binstitute\s+of\s+radiophysics\s+and\s+electronics\b'
+  - '\binstitute\s+of\s+biochemistry.*?(?:armenia|erevan|yerevan)\b'
+  - '\binstitute\s+of\s+physiology.*?(?:armenia|erevan|yerevan)\b'
+  - '\binstitute\s+of\s+fine\s+organic\s+chemistry\b'
+  - '\bnational\s+center\s+of\s+oncology.*?(?:armenia|yerevan)\b'
+  - '\bmuratsan\s+hospital\b'
+  - '\berebu[n]i\s+medical\s+center\b'
+  - '\brepublican\s+(?:medical\s+)?center\s+of\s+(?:armenia|erevan)\b'
+  - '\bshengavit\s+medical\s+center\b'
+
+# ── City patterns ─────────────────────────────────────────────────────────────
+# Match → <code>_country if country_name_pattern also matches;
+#          otherwise → uncertain (or <code>_country in broad mode).
+city_patterns:
+  - '\byerevan\b'
+  - '\berevan\b'
+  - '\bgyumri\b'
+  - '\bgiumri\b'
+  - '\bvanadzor\b'
+  - '\bashtarak\b'
+  - '\babovyan\b'
+  - '\bkapan\b'
+  - '\bhrazdan\b'
+  - '\balaverdi\b'
+  - '\bgoris\b'
+  - '\bvagharshapat\b'
+  - '\betchmiadzin\b'
+  - '\bechmiadzin\b'
+  - '\barmavir\b'
+  - '\bartashat\b'
+  - '\bcharentsavan\b'
+  - '\bsevan\b'
+  - '\bgavarr?\b'
+  - '\byeghegnadzor\b'
+  - '\bsisian\b'
+  - '\bijevan\b'
+  - '\bdilijan\b'
+  - '\bstepanakert\b'
+  - '\bmartuni\b'
