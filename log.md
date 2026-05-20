@@ -28,6 +28,29 @@
 - `tests/test_affiliation.py` – added `CountryClassifier` direct API tests + Latvia smoke tests (92 tests total)
 - `tests/test_integration.py` – updated `n_armenia_country` → `n_country_match`
 
+---
+
+## 2026-05-20 – Fragmentation analysis script
+
+- `analysis/fragmentation.py` – standalone script computing fragmentation indices from pipeline output
+  - Deposition rates (overall and within PMC-OA subset)
+  - Repository classification: domain-standard / general-purpose / code-other
+  - Shannon entropy and HHI (raw + normalised) over article-to-repository distribution
+  - Long-tail ratio (configurable threshold, default <10 articles)
+  - Article×repository bipartite graph: cross-link rate and orphan rate
+  - Outputs: `fragmentation_indices.csv` + `fragmentation_report.md` in `output/{country}/`
+  - dbSNP excluded from all indices by design
+- Usage: `python analysis/fragmentation.py --country armenia`
+
+**Armenia (2020–2025) results:**
+- Deposition rate: 26.8% overall | 35.9% within OA
+- 21 repositories analysed (dbSNP excluded)
+- Shannon H_norm = 0.552 | HHI_norm = 0.317 (moderate fragmentation, GenBank-dominated)
+- Long-tail ratio: 3.4% (< 10 articles threshold)
+- Cross-link rate: 18.5% | Orphan rate: 81.5% (most multi-repo deposits are in isolated silos)
+
+---
+
 ### Git
 - Initialized local repository
 - Initial commit `2015af1` (32 files, 4446 lines)
