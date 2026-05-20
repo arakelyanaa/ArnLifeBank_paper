@@ -59,10 +59,10 @@ def _fetch_with_retry(fn, cfg: Config, *args, **kwargs):
 
 def search_year(year: int, cfg: Config, cache: Cache) -> list[str]:
     """
-    Return a list of PMIDs matching the Armenia affiliation query for *year*.
+    Return a list of PMIDs matching the country affiliation query for *year*.
     Results are cached so repeated runs do not re-query.
     """
-    cache_key = f"search:{year}"
+    cache_key = f"search:{cfg.country_code}:{year}"
     cached = cache.get(cache_key)
     if cached is not None:
         logger.info("[%d] Using cached search results (%d PMIDs).", year, len(cached))
