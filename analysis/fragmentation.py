@@ -15,6 +15,7 @@ variant IDs, not new data deposits, and would distort the fragmentation signal.
 Usage:
   python analysis/fragmentation.py --country armenia
   python analysis/fragmentation.py --country latvia --longtail-threshold 5
+  python analysis/fragmentation.py --country armenia --classes general_purpose,code_other
 """
 
 from __future__ import annotations
@@ -102,7 +103,31 @@ def main() -> None:
                         help="Override output directory path.")
     parser.add_argument("--longtail-threshold", type=int, default=10, metavar="N",
                         help="Repos with fewer than N articles are counted as long-tail (default: 10).")
+    parser.add_argument("--classes", default=None, metavar="CLASS[,CLASS...]",
+                        help="Comma-separated repo classes to include "
+                             "(domain_standard, general_purpose, code_other). "
+                             "Default: all classes.")
     args = parser.parse_args()
+
+    # Resolve requested classes and output suffix
+    all_classes = set(REPO_CLASSES.keys())
+    if args.classes:
+        requested_classes = {c.strip() for c in args.classes.split(",")}
+        unknown = requested_classes - all_classes
+        if unknown:
+            parser.error(f"Unknown class(es): {', '.join(sorted(unknown))}. "
+                         f"Valid: {', '.join(sorted(all_classes))}")
+    else:
+        requested_classes = all_classes
+
+    # Short labels for output file suffix
+    _short = {"domain_standard": "domain", "general_purpose": "gp", "code_other": "code"}
+    if requested_classes == all_classes:
+        file_suffix = ""
+    else:
+        file_suffix = "_" + "_".join(_short[c] for c in
+                                     ["domain_standard", "general_purpose", "code_other"]
+                                     if c in requested_classes)
 
     root = Path(__file__).resolve().parent.parent
     out_dir = Path(args.output_dir) if args.output_dir else root / "output" / args.country
@@ -116,6 +141,16 @@ def main() -> None:
     # Apply exclusions
     repo_df  = repo_df[~repo_df["repository"].isin(EXCLUDED_REPOS)].copy()
     links_df = links_df[~links_df["repository"].isin(EXCLUDED_REPOS)].copy()
+
+    # Restrict to requested classes (after exclusions)
+    if requested_classes != all_classes:
+        included_repos = {
+            repo for cls, members in REPO_CLASSES.items()
+            if cls in requested_classes
+            for repo in members
+        }
+        repo_df  = repo_df[repo_df["repository"].isin(included_repos)].copy()
+        links_df = links_df[links_df["repository"].isin(included_repos)].copy()
 
     # ── Deposition rates ──────────────────────────────────────────────────────
     aff = summary["affiliation_classification"]
@@ -205,7 +240,7 @@ def main() -> None:
          f"fraction of multi-repo articles with no cross-linked pair ({n_orphan}/{n_multi})"),
     ]
     indices_df = pd.DataFrame(rows, columns=["metric", "value", "note"])
-    indices_path = out_dir / "fragmentation_indices.csv"
+    indices_path = out_dir / f"fragmentation{file_suffix}_indices.csv"
     indices_df.to_csv(indices_path, index=False)
 
     # ── Output: Markdown report ───────────────────────────────────────────────
@@ -322,7 +357,7 @@ def main() -> None:
         f"exactly the gap a national-level catalogue would close.",
     ]
 
-    md_path = out_dir / "fragmentation_report.md"
+    md_path = out_dir / f"fragmentation{file_suffix}_report.md"
     md_path.write_text("\n".join(lines), encoding="utf-8")
 
     # ── Console summary ───────────────────────────────────────────────────────
