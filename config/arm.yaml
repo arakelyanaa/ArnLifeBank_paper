@@ -1,0 +1,37 @@
+arm:
+  base_url: "https://armlifebank.am"
+  harvest:
+    # Discovery methods tried in this order; the first that returns records is used.
+    # ArmLifeBank runs SEEK4Science v1.15.0-main — JSON:API available at .json suffix.
+    methods:
+      - seek_json_api   # /data_files.json, /publications.json  (same platform as LHA)
+      - sitemap_scrape  # /sitemap.xml → parse each record page (fallback)
+    rate_limit_rps: 1   # hard cap: one request per second
+    user_agent: "ArmLifeBank-Research-Bot/1.0 (contact: arakelyanaa@gmail.com)"
+    respect_robots_txt: true
+
+  match:
+    enable_publication_anchored: true   # Tier-3 on/off (toggle for sensitivity analysis)
+    fuzzy_title_threshold: 0.92        # similarity threshold — diagnostic only
+    fuzzy_title_match_count_as_confirmed: false   # fuzzy hits NEVER count as confirmed
+
+# ── Analysis target ──────────────────────────────────────────────────────────
+target:
+  name: "Armenia"
+  code: "armenia"
+  input_links:    "output/armenia/article_repository_links.csv"
+  input_articles: "output/armenia/articles.csv"
+
+# ── Output paths ─────────────────────────────────────────────────────────────
+output:
+  index:          "output/arm_index.csv"     # canonical key used by harvest/match/report
+  arm_index:      "output/arm_index.csv"     # alias for clarity
+  match_results:  "output/arm_discoverability/match_results.csv"
+  summary_report: "output/arm_discoverability/summary.md"
+  per_tier_json:  "output/arm_discoverability/results.json"
+  harvest_log:    "output/arm_harvest.log"
+
+# ── Cache paths ───────────────────────────────────────────────────────────────
+cache:
+  arm_raw_dir: ".cache/arm/raw"     # one file per ArmLifeBank record
+  robots_txt:  ".cache/arm/robots.txt"

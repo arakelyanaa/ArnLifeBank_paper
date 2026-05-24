@@ -1,0 +1,156 @@
+# Institution profile: Leipzig University (Universität Leipzig)
+# Used by the ArmLifeBank pipeline to classify author affiliations and build
+# PubMed search queries.  All regex patterns are compiled with re.IGNORECASE.
+#
+# NOTE — institution vs. country scope:
+#   This profile targets a single university rather than a country.
+#   The classifier field "country_name_pattern" is repurposed here as the
+#   geographic anchor (bare toponym "Leipzig") that confirms institution/
+#   department matches, exactly as city anchors work in country profiles.
+#   Output labels will read "leipzig_country" / "not_leipzig_country";
+#   rename the code field if cleaner labels are needed.
+#
+# FALSE-POSITIVE SOURCES:
+#   "Leipzig" occasionally appears in affiliation strings for institutions
+#   that are physically located in Leipzig but are legally independent of
+#   Leipzig University (UFZ, MPI-MIS, HTWK, Fraunhofer IZI).  Negative
+#   patterns handle the most common of these.  iDiv affiliations are NOT
+#   excluded because iDiv researchers routinely hold joint appointments at
+#   Leipzig University and their affiliation strings typically mention both.
+
+name: "Leipzig University"
+code: "leipzig"
+search_term: >-
+  ("Leipzig University"[Affiliation] OR
+   "University of Leipzig"[Affiliation] OR
+   "Universit%C3%A4t Leipzig"[Affiliation]) AND ({year}[PDAT])
+domain_suffix: ".uni-leipzig.de"         # institutional email / web domain
+country_name_pattern: '\bleipzig\b'      # geographic anchor for institution / department hits
+adjective_pattern: ~                     # no country-adjective equivalent; field left null
+
+
+# ── Negative patterns ─────────────────────────────────────────────────────────
+# Any match → immediately classified as not_<code>_country.
+# Target only unambiguous non-university Leipzig institutions; do NOT exclude
+# collaborative centres (iDiv, LIFE) where joint affiliation is common.
+negative_patterns:
+  # Helmholtz Centre for Environmental Research — independent Helmholtz centre
+  - '\bhelmholtz\s+cent(?:re|er)\s+for\s+environmental\s+research\b'
+  - '\bufz\s+(?:–|-|—)?\s*(?:helmholtz|leipzig)\b'
+  - '\bufz\b.*?\bleipzig\b'
+
+  # Max Planck Institutes in Leipzig — all are independent of the university.
+  # MPI-MIS (Mathematics in the Sciences), MPI-CBS (Human Cognitive and Brain
+  # Sciences), MPI-EVA (Evolutionary Anthropology) are the main ones.
+  # The broad pattern catches any future MPI affiliations citing Leipzig.
+  - '\bmax\s+planck\s+institute\b'
+  - '\bmpi[\s-](?:mis|cbs|eva)\b'
+
+  # Leipzig University of Applied Sciences — separate institution
+  - '\bleipzig\s+university\s+of\s+applied\s+sciences\b'
+  - '\bhtwk\s+leipzig\b'
+  - '\bhochschule\s+f[üu]r\s+technik[,\s]+wirtschaft\s+und\s+kultur\b'
+
+  # Fraunhofer Institute for Cell Therapy and Immunology — independent Fraunhofer
+  - '\bfraunhofer\s+(?:institute\s+for|izi)\b.*?\bleipzig\b'
+  - '\bfraunhofer\s+izi\b'
+
+  # Hochschule für Musik und Theater Leipzig — conservatory, not the university
+  - '\bhochschule\s+f[üu]r\s+musik\s+und\s+theater\s+leipzig\b'
+  - '\bhmt\s+leipzig\b'
+
+  # Academy of Visual Arts Leipzig (HGB)
+  - '\bhochschule\s+f[üu]r\s+grafik\s+und\s+buchkunst\b'
+  - '\bhgb\s+leipzig\b'
+
+
+# ── Strong positive patterns ──────────────────────────────────────────────────
+# Any match → classified as <code>_country immediately (no further checks needed).
+strong_positive_patterns:
+  # Explicit university name in English or German (with or without comma before Leipzig)
+  - '\bleipzig\s+university\b'
+  - '\buniversity\s+of\s+leipzig\b'
+  - '\buniversit[äa]t\s+leipzig\b'
+
+  # University Hospital Leipzig — integral part of the university
+  - '\buniversity\s+(?:hospital|medical\s+cent(?:er|re))\s+(?:of\s+)?leipzig\b'
+  - '\bleipzig\s+university\s+hospital\b'
+  - '\buniversit[äa]tsklinikum\s+leipzig\b'
+
+  # Institutional email / web domain (handled separately via domain_suffix above,
+  # but redundant explicit pattern adds resilience)
+  - '[\w.\-]+@[\w.\-]+\.uni-leipzig\.de\b'
+
+  # IZBI — Interdisciplinary Centre for Bioinformatics of Leipzig University
+  # Both English names and the German name are strong signals when paired with Leipzig.
+  # Listed here rather than under institution_patterns because IZBI does not exist
+  # at any other university under the same name.
+  - '\binterdisciplinary\s+cent(?:re|er)\s+for\s+bioinformatics\b'
+  - '\binterdisziplin[äa]res\s+zentrum\s+f[üu]r\s+bioinformatik\b'
+  - '\bizbi\b'
+
+
+# ── Institution patterns ──────────────────────────────────────────────────────
+# Match → <code>_country if country_name_pattern ("leipzig") also matches;
+#          otherwise → uncertain (or <code>_country in broad mode).
+# Patterns here cover faculties, institutes, and centres that are unambiguously
+# part of Leipzig University but whose names alone do not identify the university
+# (e.g. "Institute of Biochemistry" exists at many universities).
+institution_patterns:
+  # ── Medical Faculty & University Hospital units ───────────────────────────
+  - '\bmedical\s+faculty.*?leipzig\b'
+  - '\bfaculty\s+of\s+medicine.*?leipzig\b'
+  - '\bmedizinische\s+fakult[äa]t.*?leipzig\b'
+
+  - '\binstitute\s+of\s+medical\s+informatics[,\s]+statistics\s+and\s+epidemiology\b'
+  - '\bimise\b'
+
+  - '\bleipzig\s+research\s+cent(?:re|er)\s+for\s+civilization\s+diseases\b'
+  - '\blife\s+leipzig\b'                            # LIFE — large population study
+
+  - '\binstitute\s+of\s+human\s+genetics.*?leipzig\b'
+  - '\binstitute\s+of\s+medical\s+physics\s+and\s+biophysics.*?leipzig\b'
+  - '\binstitute\s+of\s+biochemistry.*?leipzig\b'
+  - '\binstitute\s+of\s+physiology.*?leipzig\b'
+  - '\binstitute\s+of\s+anatomy.*?leipzig\b'
+  - '\binstitute\s+of\s+pathology.*?leipzig\b'
+  - '\binstitute\s+of\s+clinical\s+immunology.*?leipzig\b'
+  - '\bdepartment\s+of\s+(?:neurology|psychiatry|cardiology|oncology|surgery|radiology|ophthalmology|dermatology|pediatrics|gynecology|urology|anesthesiology|internal\s+medicine).*?(?:leipzig|ukl)\b'
+
+  # UKL abbreviation (Universitätsklinikum Leipzig) — accept when "Leipzig" also present
+  - '\bukl\b'
+
+  # ── Faculty of Life Sciences ──────────────────────────────────────────────
+  - '\bfaculty\s+of\s+life\s+sciences.*?leipzig\b'
+  - '\bfakult[äa]t\s+f[üu]r\s+lebenswissenschaften.*?leipzig\b'
+  - '\binstitute\s+of\s+biology.*?leipzig\b'
+  - '\binstitute\s+of\s+pharmacy.*?leipzig\b'
+  - '\binstitute\s+of\s+biochemistry.*?leipzig\b'
+
+  # ── Faculty of Mathematics and Computer Science ───────────────────────────
+  - '\bfaculty\s+of\s+mathematics\s+and\s+computer\s+science.*?leipzig\b'
+  - '\bfakult[äa]t\s+f[üu]r\s+mathematik\s+und\s+informatik.*?leipzig\b'
+  - '\bdepartment\s+of\s+computer\s+science.*?leipzig\b'
+  - '\binstitut\s+f[üu]r\s+informatik.*?leipzig\b'
+
+  # ── Natural Sciences ──────────────────────────────────────────────────────
+  - '\bfaculty\s+of\s+(?:chemistry\s+and\s+mineralogy|physics\s+and\s+earth\s+sciences).*?leipzig\b'
+  - '\binstitute\s+of\s+(?:chemistry|physics|geophysics|mineralogy).*?leipzig\b'
+
+  # ── Collaborative / interdisciplinary centres ─────────────────────────────
+  - '\bcent(?:re|er)\s+for\s+(?:scalable\s+data\s+analytics|evolution|biotechnology\s+and\s+biomedicine|environmental\s+research|area\s+studies).*?leipzig\b'
+  - '\bgerman\s+cent(?:re|er)\s+for\s+integrative\s+biodiversity\s+research\b'  # iDiv — joint w/ Leipzig Uni
+  - '\bidiv\b'
+
+
+# ── City patterns ─────────────────────────────────────────────────────────────
+# Rarely needed given how explicit Leipzig University affiliation strings are,
+# but included for completeness to handle abbreviated or non-standard strings.
+# Match → <code>_country if country_name_pattern ("leipzig") also matches
+#          (which is trivially true here since the pattern IS "leipzig"); in
+#          practice city_patterns here serve as a belt-and-suspenders check for
+#          strings that contain "Leipzig" but no strong university signal.
+city_patterns:
+  - '\bleipzig\b'
+  - '\bgrünau\b'                # Leipzig district; rarely appears in affiliations
+  - '\bconnewitz\b'             # Leipzig district; rarely appears in affiliations

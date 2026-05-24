@@ -1,0 +1,35 @@
+lha:
+  base_url: "https://www.health-atlas.de"
+  harvest:
+    # Discovery methods tried in this order; the first that returns records is used.
+    methods:
+      - dcat_endpoint    # /dcat, /catalog.ttl, /api/dcat  (NFDI4Health / HealthDCAT-AP)
+      - rest_api         # /api/v1/datasets, /api/catalog
+      - sitemap_scrape   # /sitemap.xml → parse each /lha/<id> page
+    rate_limit_rps: 1    # hard cap: one request per second
+    user_agent: "ArmLifeBank-Research-Bot/1.0 (contact: arakelyanaa@gmail.com)"
+    respect_robots_txt: true
+
+  match:
+    enable_publication_anchored: true   # Tier-3 on/off (toggle for sensitivity analysis)
+    fuzzy_title_threshold: 0.92        # similarity threshold — diagnostic only
+    fuzzy_title_match_count_as_confirmed: false   # fuzzy hits NEVER count as confirmed
+
+# ── Analysis target ──────────────────────────────────────────────────────────
+target:
+  name: "Leipzig University"
+  code: "leipzig_university"
+  input_links:    "output/leipzig_university/article_repository_links.csv"
+  input_articles: "output/leipzig_university/articles.csv"
+
+# ── Output paths ─────────────────────────────────────────────────────────────
+output:
+  lha_index:        "output/lha_index.csv"
+  match_results:    "output/lha_discoverability/match_results.csv"
+  summary_report:   "output/lha_discoverability/summary.md"
+  per_tier_json:    "output/lha_discoverability/results.json"
+
+# ── Cache paths ───────────────────────────────────────────────────────────────
+cache:
+  lha_raw_dir: ".cache/lha/raw"      # one file per LHA record
+  robots_txt:  ".cache/lha/robots.txt"

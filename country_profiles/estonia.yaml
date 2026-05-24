@@ -1,0 +1,75 @@
+# Country profile: Estonia
+# Used by the ArmLifeBank pipeline to classify author affiliations and build
+# PubMed search queries.  All regex patterns are compiled with re.IGNORECASE.
+#
+# "Estonia" is geographically unambiguous in biomedical literature.
+# False-positive sources are negligible; classification is straightforward.
+
+name: "Estonia"
+code: "estonia"
+search_term: '("Estonia"[Affiliation]) AND ({year}[PDAT])'
+domain_suffix: ".ee"                    # email / web domain that confirms country location
+country_name_pattern: '\bestonia\b'     # bare country name; used to validate city/institution hits
+adjective_pattern: '\bestonian\b'       # country adjective — matched alone yields "uncertain"
+
+# ── Negative patterns ─────────────────────────────────────────────────────────
+# Estonia is geographically unambiguous; no known systematic false-positive sources.
+negative_patterns: []
+
+# ── Strong positive patterns ──────────────────────────────────────────────────
+# Any match → classified as <code>_country immediately (no further checks needed).
+strong_positive_patterns:
+  - '\brepublic\s+of\s+estonia\b'
+  # "Estonia" as the last address token (country position)
+  - '(?:,\s*|\.\s*|\s+)estonia\s*[\.,;]?\s*$'
+
+# ── Institution patterns ──────────────────────────────────────────────────────
+# Match → <code>_country if country_name_pattern OR any city also matches;
+#          otherwise → uncertain (or <code>_country in broad mode).
+institution_patterns:
+  - '\buniversity\s+of\s+tartu\b'
+  - '\btartu\s+[üu]likool\b'              # Estonian name
+  - '\btaltech\b'                          # Tallinn University of Technology abbrev
+  - '\btallinn\s+university\s+of\s+technology\b'
+  - '\btallinn\s+university\b'
+  - '\bestonian\s+university\s+of\s+life\s+sciences\b'
+  - '\bemü\b'                              # Estonian abbreviation for life sciences university
+  - '\bestonian\s+(?:national\s+)?genome\s+cent(?:er|re)\b'
+  - '\bestonian\s+biobank\b'
+  - '\bcompetence\s+cent(?:er|re)\s+on\s+health\s+technologies\b'
+  - '\btartu\s+university\s+(?:hospital|clinics?)\b'
+  - '\bnorth\s+estonia\s+medical\s+cent(?:er|re)\b'
+  - '\beast\s+tallinn\s+central\s+hospital\b'
+  - '\bwest\s+tallinn\s+central\s+hospital\b'
+  - '\btartu\s+university\s+hospital\b'
+  - '\bpärnu\s+hospital\b'
+  - '\bparnu\s+hospital\b'
+  - '\bnational\s+institute\s+(?:for\s+)?(?:health\s+development|of\s+chemical\s+physics)\b'
+  - '\bestonian\s+(?:research\s+council|science\s+foundation|cancer\s+registry)\b'
+  - '\binstitute\s+of\s+(?:physics|chemistry|cybernetics|genomics).*?(?:estonia|tartu|tallinn)\b'
+  - '\bnicpb\b'                            # National Institute of Chemical Physics and Biophysics
+  - '\bkbfi\b'                             # Estonian abbreviation for NICPB
+  - '\bestonian\s+(?:centre\s+of\s+)?biocentre\b'
+  - '\bestonian\s+(?:public\s+)?broadcasting\b'  # unlikely in biomedical but included for completeness
+  - '\bkliinilise\b'                       # Estonian word appearing in hospital names
+
+# ── City patterns ─────────────────────────────────────────────────────────────
+# Match → <code>_country if country_name_pattern also matches;
+#          otherwise → uncertain (or <code>_country in broad mode).
+city_patterns:
+  - '\btallinn\b'
+  - '\btallin\b'                           # common misspelling in affiliations
+  - '\btartu\b'
+  - '\bnarva\b'
+  - '\bp[äa]rnu\b'
+  - '\bkohtla[- ]j[äa]rve\b'
+  - '\bviljandi\b'
+  - '\brakvere\b'
+  - '\bmaardu\b'
+  - '\bkuressaare\b'
+  - '\bvõru\b'
+  - '\bvoru\b'
+  - '\bj[õo]hvi\b'
+  - '\bhaapsalu\b'
+  - '\bkeilab\b'
+  - '\bsaue\b'

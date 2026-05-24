@@ -1,0 +1,13 @@
+Go ahead and run Estonia in your terminal:                                                                           
+                                                                                                                       
+  python -m armlifebank.cli --country estonia --start-year 2020 --end-year 2025 --mode strict                          
+                                                                                                                       
+  And if you ran Georgia before the cache fix, re-run that too:                                                        
+                                                                                                                       
+  python -m armlifebank.cli --country georgia --start-year 2020 --end-year 2025 --mode strict                          
+                                                                                                                       
+  Once both finish, run the fragmentation analysis and I can build the comparison table:                               
+                                                                                                                       
+  python analysis/fragmentation.py --country armenia                                                                   
+  python analysis/fragmentation.py --country georgia
+  python analysis/fragmentation.py --country estonia

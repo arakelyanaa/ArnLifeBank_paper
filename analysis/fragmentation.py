@@ -337,7 +337,7 @@ def main() -> None:
         "",
         "## 5. Narrative Summary",
         "",
-        f"Of {n_validated:,} Armenia-affiliated articles ({year_range}), "
+        f"Of {n_validated:,} {country_name}-affiliated articles ({year_range}), "
         f"**{rate_overall:.1%}** ({n_depositing}) deposit data in any tracked repository "
         f"(after excluding dbSNP). "
         f"Within the PMC Open Access subset the rate rises to **{rate_oa:.1%}**, "
@@ -346,7 +346,7 @@ def main() -> None:
         f"Deposits are spread across **{n_repos} repositories** "
         f"(H = {H:.2f} bits, H_norm = {H_norm:.2f}; HHI = {HHI_raw:.4f}). "
         f"A long-tail ratio of **{lt_ratio:.1%}** means that {lt_ratio:.0%} of depositing-article "
-        f"mentions sit in repositories used by fewer than {lt_n} Armenian papers — "
+        f"mentions sit in repositories used by fewer than {lt_n} {country_name} papers — "
         f"those datasets are effectively invisible to any country-level discovery query.",
         "",
         f"Of the {n_multi} articles that deposit in more than one repository, "

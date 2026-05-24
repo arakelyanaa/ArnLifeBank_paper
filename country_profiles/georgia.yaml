@@ -1,0 +1,122 @@
+# Country profile: Georgia (Caucasus)
+# Used by the ArmLifeBank pipeline to classify author affiliations and build
+# PubMed search queries.  All regex patterns are compiled with re.IGNORECASE.
+#
+# KEY CHALLENGE: "Georgia" is also a US state. The trailing-country-token
+# strong_positive pattern used for Armenia is NOT safe here because
+# "Emory University, Atlanta, Georgia" ends with "Georgia" (US state).
+# Classification therefore relies heavily on:
+#   (a) Atlanta and major US-Georgia-institution NEGATIVE rules, and
+#   (b) Tbilisi and other Georgian cities as POSITIVE confirmation.
+
+name: "Georgia"
+code: "georgia"
+search_term: '("Tbilisi"[Affiliation]) AND ({year}[PDAT])'
+domain_suffix: ".ge"                    # email / web domain that confirms country location
+country_name_pattern: '\btbilisi\b'     # bare country name; used to validate city/institution hits
+adjective_pattern: '\bgeorgian\b'       # country adjective — matched alone yields "uncertain"
+
+# ── Negative patterns ─────────────────────────────────────────────────────────
+# Any match → immediately classified as not_<code>_country.
+# Focus on signals that are unambiguous markers of the US State of Georgia.
+negative_patterns:
+  # Atlanta is the single most reliable US-Georgia marker in biomedical literature
+  - '\batlanta\b'
+
+  # Explicit US country / state markers
+  - '\bgeorgia\s*,\s*(?:usa|united\s+states|u\.s\.a?\.)\b'
+  - '\bga\s*,\s*(?:usa|united\s+states|u\.s\.a?\.)\b'
+
+  # US Georgia cities co-occurring with the state name or abbreviation
+  - '\b(?:savannah|macon|brunswick|valdosta|albany|rome|columbus|athens)\s*,\s*(?:ga\.?|georgia)\b'
+
+  # US Georgia public universities
+  - '\bgeorgia\s+institute\s+of\s+technology\b'
+  - '\bgeorgia\s+tech\b'
+  - '\bgeorgia\s+state\s+university\b'
+  - '\bgeorgia\s+southern\s+(?:university|college)\b'
+  - '\bgeorgia\s+regents\s+university\b'
+  - '\buniversity\s+of\s+(?:north|west|middle|south)\s+georgia\b'
+  - '\bgeorgia\s+(?:gwinnett|highlands|southwestern|perimeter)\s+college\b'
+  - '\bgeorgia\s+college\s+(?:&|and)\s+state\s+university\b'
+  - '\beast\s+georgia\s+(?:state|college)\b'
+  - '\bfort\s+valley\s+state\s+university\b'
+
+  # US Georgia private / health-system institutions
+  - '\bemory\s+university\b'
+  - '\bemory\s+healthcare\b'
+  - '\baugusta\s+university\b'
+  - '\bmedical\s+college\s+of\s+georgia\b'
+  - '\bmercer\s+university\b'
+  - '\bkennesaw\s+state\s+university\b'
+  - '\bmorehouse\s+(?:school\s+of\s+medicine|college)\b'
+  - '\barmstrong\s+(?:state|atlantic)\s+university\b'
+  - '\bspelman\s+college\b'
+  - '\bchildren[''s]*\s+healthcare\s+of\s+atlanta\b'
+  - '\bgrady\s+(?:health|memorial)\b'
+  - '\bpiedmont\s+(?:healthcare|hospital)\b'
+  - '\bwellstar\b'
+
+  # US ZIP / postal code patterns common in Atlanta affiliations
+  - '\b3[0-1]\d{3}\b'    # US ZIP codes 30000–31999 cover all of Georgia state
+
+# ── Strong positive patterns ──────────────────────────────────────────────────
+# Any match → classified as <code>_country immediately (no further checks needed).
+# Note: trailing-token pattern OMITTED — "Georgia" as trailing token is also
+# used for the US state (e.g., "Emory University, Atlanta, Georgia").
+strong_positive_patterns:
+  - '\brepublic\s+of\s+georgia\b'
+  # Tbilisi is so exclusively associated with Georgia (country) that it warrants
+  # a strong-positive when paired with any mention of "Georgia" — handled via
+  # city_patterns + country_name_pattern logic in the classifier.
+
+# ── Institution patterns ──────────────────────────────────────────────────────
+# Match → <code>_country if country_name_pattern OR any city also matches;
+#          otherwise → uncertain (or <code>_country in broad mode).
+# IMPORTANT: "University of Georgia" omitted — a Georgian institution in Tbilisi
+# shares this name with the US flagship (Athens, GA). Confirmation via city required.
+institution_patterns:
+  - '\bivane\s+javakhishvili\b'               # full name of Tbilisi State University
+  - '\btbilisi\s+state\s+(?:university|medical\s+university)\b'
+  - '\btsmu\b'                                # Tbilisi State Medical University abbrev
+  - '\bgeorgian\s+technical\s+university\b'
+  - '\bgtu\b'                                 # Georgian Technical University abbrev
+  - '\bilia\s+state\s+university\b'
+  - '\bilia\s+university\b'
+  - '\bagricultural\s+university\s+of\s+georgia\b'
+  - '\bbatumi\s+shota\s+rustaveli\s+state\s+university\b'
+  - '\bakaki\s+tsereteli\s+state\s+university\b'
+  - '\bgeorgian\s+(?:national\s+)?academy\s+of\s+sciences\b'
+  - '\bnational\s+academy\s+of\s+sciences\s+of\s+georgia\b'
+  - '\bgeorgian\s+american\s+university\b'
+  - '\bfree\s+university\s+of\s+tbilisi\b'
+  - '\bkavkaz\s+university\b'
+  - '\btbilisi\s+(?:open\s+)?teaching\s+university\b'
+  - '\binstitute\s+of\s+applied\s+mathematics.*?tbilisi\b'
+  - '\binstitute\s+of\s+cybernetics.*?georgia\b'
+  - '\bm\.\s*nodia\s+institute\s+of\s+geophysics\b'
+  - '\bferdinand\s+tavartkiladze\b'           # Tbilisi Teaching University
+  - '\bnational\s+center\s+for\s+disease\s+control.*?georgia\b'
+  - '\bgeorgian\s+institute\s+of\s+public\s+affairs\b'
+
+# ── City patterns ─────────────────────────────────────────────────────────────
+# Match → <code>_country if country_name_pattern also matches;
+#          otherwise → uncertain (or <code>_country in broad mode).
+city_patterns:
+  - '\btbilisi\b'        # capital; strong signal — rarely confused with anything else
+  - '\bkutaisi\b'
+  - '\bbatumi\b'
+  - '\brustavi\b'
+  - '\bgori\b'
+  - '\bzugdidi\b'
+  - '\bpoti\b'
+  - '\btelavi\b'
+  - '\bmtskheta\b'
+  - '\bsamtredia\b'
+  - '\bsokhumi\b'
+  - '\bsukhumi\b'
+  - '\bkvareli\b'
+  - '\bsighnaghi\b'
+  - '\bkhashuri\b'
+  - '\bozurgeti\b'
+  - '\btsalenjikha\b'
