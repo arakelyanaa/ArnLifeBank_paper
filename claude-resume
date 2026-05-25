@@ -1,2 +1,21 @@
 Resume this session with:
 claude --resume 29f66e76-3096-42b4-b8d4-6e3eaa37c15b
+claude --resume 29f66e76-3096-42b4-b8d4-6e3eaa37c15b
+
+To resume this session specifically, the ID would be different. You can find it by running:                          
+   
+  claude --list-sessions                                                                                               
+                                                            
+  or check the Claude Code session files. But honestly, you don't need the session ID — the memory system saves        
+  everything that matters. Just run claude in the project directory and say "continue from where we left off". I'll
+  have full context from the memory files and log.md.                                                                  
+                                                            
+  The --resume flag is useful for continuing mid-conversation, but once a session ends cleanly (as this one will), the 
+  memory-based approach works just as well.
+
+claude --resume 915c2f71-55f2-4b1a-9a67-64bfb42b4c7f
+
+claude --resume 44f75236-291c-41a6-9dc2-55044a6c8661
+
+claude --resume 2468254b-fbbe-4f97-b161-96774ff77530
+
