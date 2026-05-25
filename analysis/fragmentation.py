@@ -154,8 +154,13 @@ def main() -> None:
 
     # ── Deposition rates ──────────────────────────────────────────────────────
     aff = summary["affiliation_classification"]
-    # Handle both old key (pre-refactor runs) and new key
+    # Handle both old key (pre-refactor runs) and new key.
+    # Institution-level runs (e.g. Leipzig) record n_country_match=0 because the
+    # affiliation classifier counts institution matches separately; fall back to
+    # the total article count from articles.csv in that case.
     n_validated = int(aff.get("n_country_match") or aff.get("n_armenia_country", 0))
+    if n_validated == 0:
+        n_validated = len(arts_df)
     n_oa        = int(summary["fulltext_retrieval"]["n_fulltext_retrieved"])
 
     # Unique articles that have ≥1 confirmed link (after dbSNP exclusion)
