@@ -130,20 +130,100 @@ Patterns are defined in `repository_patterns.yaml` and compiled at runtime. Thre
 
 ---
 
+## Reproducing the full dataset
+
+Run these commands in order to regenerate all outputs in the Zenodo archive.
+
+**Step 1 — Main pipeline (one run per cohort)**
+
+```bash
+armlifebank --country armenia          --start-year 2020 --end-year 2025 --mode strict
+armlifebank --country georgia          --start-year 2020 --end-year 2025 --mode strict
+armlifebank --country estonia          --start-year 2020 --end-year 2025 --mode strict
+armlifebank --country leipzig_university --start-year 2020 --end-year 2025 --mode strict
+```
+
+**Step 2 — Atlas harvest (ArmLifeBank and Leipzig Health Atlas)**
+
+```bash
+python analysis/harvest.py --config config/arm.yaml   # ArmLifeBank
+python analysis/harvest.py                            # Leipzig Health Atlas
+```
+
+**Step 3 — Atlas–publication matching**
+
+```bash
+python analysis/match.py --config config/arm.yaml     # ArmLifeBank
+python analysis/match.py                              # Leipzig Health Atlas
+```
+
+**Step 4 — Discoverability reports**
+
+```bash
+python analysis/lha_report.py --config config/arm.yaml
+python analysis/lha_report.py
+```
+
+**Step 5 — Repository fragmentation indices**
+
+```bash
+python analysis/fragmentation.py --country armenia
+python analysis/fragmentation.py --country georgia
+python analysis/fragmentation.py --country estonia
+python analysis/fragmentation.py --country leipzig_university
+python analysis/fragmentation_armlifebank.py          # ArmLifeBank subset only
+```
+
+**Step 6 — Reuse and citation analysis**
+
+```bash
+python analysis/reuse.py
+```
+
+**Step 7 — Search findability audit**
+
+```bash
+python analysis/search_findability.py
+```
+
+**Step 8 — ArmLifeBank access statistics**
+
+```bash
+python analysis/alb_stats.py
+```
+
+**Step 9 — Cross-cohort comparison tables**
+
+```bash
+python analysis/combine_results.py
+```
+
+---
+
 ## Output files
+
+Outputs are written to `output/<cohort>/` for per-country files and `output/` for combined files.
 
 | File | Description |
 |---|---|
-| `output/articles.csv` | One row per validated Armenia-country article, 27 columns |
-| `output/article_repository_links.csv` | One row per detected repository/identifier per article |
-| `output/repository_counts.csv` | Aggregate counts per repository |
-| `output/yearly_repository_counts.csv` | Year × repository breakdown |
-| `output/run_summary.json` | Machine-readable run metadata and all counts |
-| `output/report.md` | Human-readable Markdown summary with tables |
-| `output/affiliations_validated.csv` | Armenia-country affiliation strings |
-| `output/affiliations_excluded.csv` | Colombia/other exclusion strings |
-| `output/affiliations_uncertain.csv` | Strings requiring manual review |
-| `output/extraction_diagnostics.csv` | Low-confidence repository matches for review |
+| `output/<cohort>/articles.csv` | One row per validated article, 27 columns |
+| `output/<cohort>/article_repository_links.csv` | One row per detected repository/identifier per article |
+| `output/<cohort>/repository_counts.csv` | Aggregate counts per repository |
+| `output/<cohort>/yearly_repository_counts.csv` | Year × repository breakdown |
+| `output/<cohort>/run_summary.json` | Machine-readable run metadata and all counts |
+| `output/<cohort>/report.md` | Human-readable Markdown summary with tables |
+| `output/<cohort>/affiliations_validated.csv` | Confirmed in-country affiliation strings |
+| `output/<cohort>/affiliations_excluded.csv` | Excluded affiliation strings |
+| `output/<cohort>/affiliations_uncertain.csv` | Strings requiring manual review |
+| `output/<cohort>/fragmentation_indices.csv` | Repository fragmentation metrics |
+| `output/<cohort>/fragmentation_gp_code_indices.csv` | Fragmentation — general-purpose + code repos only |
+| `output/<cohort>/extraction_diagnostics.csv` | Low-confidence repository matches for review |
+| `output/country_comparison.csv` | Fragmentation indices across all cohorts |
+| `output/country_comparison_gp_code.csv` | GP-code fragmentation comparison |
+| `output/discoverability_comparison.csv` | Atlas discoverability scores by cohort |
+| `output/reuse_citations.csv` | Citation/reuse records for DOI-bearing datasets |
+| `output/reuse_summary.csv` | Reuse summary statistics |
+| `output/combined_report.md` | Cross-cohort narrative report |
 | `logs/pipeline.log` | Full run log |
 
 ---
@@ -165,13 +245,13 @@ Patterns are defined in `repository_patterns.yaml` and compiled at runtime. Thre
 The `.cache/` directory stores all API responses. A second run with the same parameters uses cached data entirely (no network calls). To re-fetch:
 
 ```bash
-python -m armlifebank.cli --force-refresh-cache
+armlifebank --country armenia --force-refresh-cache
 ```
 
 To run only a specific year range:
 
 ```bash
-python -m armlifebank.cli --start-year 2023 --end-year 2025
+armlifebank --country armenia --start-year 2023 --end-year 2025
 ```
 
 To test classification changes without re-fetching:
