@@ -4,22 +4,37 @@ A reproducible pipeline that searches PubMed for publications with **Armenia-cou
 
 ---
 
+## Data
+
+The dataset produced by this pipeline is archived on Zenodo:
+
+> Arakelyan A. A. (2026). *ArmLifeBank – PubMed Armenia Affiliation Audit: Dataset* (v1.0).
+> Zenodo. https://doi.org/10.5281/zenodo.XXXXXXX
+
+The archive contains all CSV/JSON/Markdown outputs for Armenia and the three comparison cohorts (Estonia, Georgia, Leipzig University), including affiliation validation tables, repository mention counts, fragmentation indices, search findability scores, and reuse/citation records.
+
+---
+
 ## Quick start
 
 ```bash
+# Install (preferred)
+pip install .
+
+# Or install dependencies only
 pip install -r requirements.txt
 
 # Sample run (50 articles, for testing)
-python -m armlifebank.cli --sample-size 50 --mode strict
+armlifebank --sample-size 50 --mode strict
 
 # Full run (2020–2025)
-python -m armlifebank.cli --start-year 2020 --end-year 2025 --mode strict
+armlifebank --start-year 2020 --end-year 2025 --mode strict
 
 # Resume an interrupted run
-python -m armlifebank.cli --resume
+armlifebank --resume
 
 # Force re-fetch all API responses
-python -m armlifebank.cli --force-refresh-cache
+armlifebank --force-refresh-cache
 ```
 
 Set your NCBI API key in `NCBI_API.txt` (one line) or via environment variable:
@@ -179,11 +194,23 @@ armlifebank/
 ├── fulltext.py         PMC OA full-text retrieval
 ├── repositories.py     Repository/accession extraction
 └── reporting.py        Aggregation and CSV/JSON/Markdown output
+analysis/
+├── harvest.py          Bulk harvest helper scripts
+├── normalize.py        Post-processing and normalisation utilities
+├── match.py            Cross-cohort matching
+├── combine_results.py  Merge multi-country outputs into comparison tables
+├── fragmentation.py    Repository fragmentation index computation
+├── fragmentation_armlifebank.py  ArmLifeBank-subset fragmentation
+├── reuse.py            Reuse and citation analysis for DOI-bearing datasets
+├── search_findability.py  Metadata search findability audit
+├── lha_report.py       LHA-specific reporting
+└── alb_stats.py        ArmLifeBank access statistics
 repository_patterns.yaml   Editable regex patterns for repository detection
 config.yaml                Runtime configuration
+country_profiles/          Per-country YAML profiles (armenia, estonia, georgia, …)
 tests/
-├── test_affiliation.py    Unit tests for affiliation classifier (39 tests)
-├── test_repositories.py   Unit tests for repository extraction (22 tests)
+├── test_affiliation.py    Unit tests for affiliation classifier
+├── test_repositories.py   Unit tests for repository extraction
 ├── test_integration.py    Integration tests using fixture PMIDs
 └── fixtures/
     └── fixture_pmids.json Hand-curated PMIDs for integration tests

@@ -26,3 +26,19 @@ NCBI_API.txt
 # Generated outputs and session data
 output-Armenia/
 .claude/
+
+# Session / dev artifacts
+claude-resume
+log.md
+CLAUDE.md
+prompts/
+
+# Manuscript files
+Paper/
+
+# next_steps working folder (alb_stats.py moved to analysis/)
+next_steps/
+
+# Zenodo staging and archive
+zenodo_staging/
+*.zip

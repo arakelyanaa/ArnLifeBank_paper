@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "armlifebank"
+version = "1.0.0"
+description = "PubMed Armenia affiliation audit pipeline for data-repository discoverability analysis"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+dependencies = [
+    "biopython>=1.83",
+    "pandas>=2.0",
+    "requests>=2.31",
+    "pyyaml>=6.0",
+    "beautifulsoup4>=4.12",
+    "lxml>=5.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
+
+[project.scripts]
+armlifebank = "armlifebank.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["armlifebank*"]
+
+[tool.pytest.ini_options]
+markers = [
+    "integration: tests that require network access and a populated cache directory",
+]
